@@ -1,0 +1,168 @@
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class RandomizedQueue<Item> implements Iterable<Item> {
+    private Node first;
+    private Node last;
+    private int listsize;
+
+    private class Node {
+        private Item item;
+        private Node next;
+    }
+
+    // construct an empty randomized queue
+    public RandomizedQueue() {
+        this.first = null;
+        this.last = null;
+        this.listsize = 0;
+    }
+
+    // is the randomized queue empty?
+    public boolean isEmpty() {
+        return first == null && last == null;
+    }
+
+    // return the number of items on the randomized queue
+    public int size() {
+        if (isEmpty())
+            return 0;
+        return listsize;
+    }
+
+    // add the item
+    public void enqueue(Item item) {
+        if (item == null)
+            throw new IllegalArgumentException();
+        else {
+            Node temp = new Node();
+            temp.item = item;
+            if (isEmpty()) {
+                first = temp;
+                last = temp;
+            }
+            else {
+                last.next = temp;
+                last = last.next;
+            }
+            listsize++;
+        }
+    }
+
+    // remove and return a random item
+    public Item dequeue() {
+        if (listsize == 0)
+            throw new NoSuchElementException();
+        else {
+            int random = StdRandom.uniform(1, size() + 1);
+            int i = 1;
+            Node temp = first;
+            Item toReturn;
+            if (listsize == 1) {
+                toReturn = temp.item;
+                first = null;
+                last = null;
+                listsize--;
+                return toReturn;
+            }
+            if (random == 1) {
+                toReturn = temp.item;
+                first = first.next;
+                if (last == null)
+                    last = first;
+                listsize--;
+                return toReturn;
+            }
+            while (i < (random - 1)) {
+                temp = temp.next;
+                i++;
+            }
+            Node tempnode = temp.next;
+            toReturn = tempnode.item;
+            if (random == listsize)
+                temp.next = null;
+            else
+                temp.next = tempnode.next;
+            listsize--;
+            return toReturn;
+        }
+    }
+
+    // return a random item (but do not remove it)
+    public Item sample() {
+        if (size() == 0)
+            throw new NoSuchElementException();
+        else {
+            int random = StdRandom.uniform(1, size() + 1);
+            int i = 1;
+            Node temp = first;
+            Item toReturn;
+            while (i < random) {
+                temp = temp.next;
+                i++;
+            }
+            toReturn = temp.item;
+            return toReturn;
+        }
+    }
+
+    // return an independent iterator over items in random order
+    public Iterator<Item> iterator() {
+        return new RandomizedQueueIterator();
+    }
+
+    private class RandomizedQueueIterator implements Iterator<Item> {
+        private Node current = first;
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Item next() {
+            if (hasNext()) {
+                Item item = current.item;
+                current = current.next;
+                return item;
+            }
+            else {
+                throw new NoSuchElementException();
+            }
+        }
+    }
+
+    // unit testing (required)
+    public static void main(String[] args) {
+        RandomizedQueue<Integer> d = new RandomizedQueue<>();
+        StdOut.print(d.isEmpty());
+        StdOut.print(d.size());
+        d.enqueue(1);
+        d.enqueue(6);
+        d.enqueue(3);
+        StdOut.print(d.size());
+        StdOut.print(d.isEmpty());
+        StdOut.print(d.dequeue());
+        StdOut.print(d.size());
+        StdOut.print(d.dequeue());
+        StdOut.print(d.size());
+        StdOut.print(d.dequeue());
+        StdOut.print(d.isEmpty());
+        d.enqueue(3);
+        StdOut.print(d.sample());
+        StdOut.print(d.isEmpty());
+        d.enqueue(2);
+        StdOut.print(d.size());
+        StdOut.print(d.isEmpty());
+        StdOut.print(d.iterator().hasNext());
+        StdOut.print(d.dequeue());
+        StdOut.print(d.iterator().hasNext());
+        StdOut.print(d.dequeue());
+        StdOut.print(d.dequeue());
+    }
+}
